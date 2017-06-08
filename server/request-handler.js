@@ -32,6 +32,7 @@ var requestHandler = function(request, response) {
   // The outgoing status.
   var statusCode = 200;
   var clientSideErr = 404;
+  var statusCodeOnPost = 201;
 
   var defaultCorsHeaders = {
     'access-control-allow-origin': '*',
@@ -66,7 +67,8 @@ var requestHandler = function(request, response) {
 //////Use built-in function write to let the user know about 404 - resource not found 
 //////send the data to cliend using '.end' method for response
 //else if request method/type(?) is POST 
-////
+//////utilize built-in function writeHead for response accepting statusCodeOnPost and header
+//////send the data to cliend using '.end' method for response
 
 
 
