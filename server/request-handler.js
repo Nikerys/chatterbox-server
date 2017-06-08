@@ -31,6 +31,7 @@ var requestHandler = function(request, response) {
 
   // The outgoing status.
   var statusCode = 200;
+  var clientSideErr = 404;
 
   var defaultCorsHeaders = {
     'access-control-allow-origin': '*',
@@ -46,11 +47,33 @@ var requestHandler = function(request, response) {
   //
   // You will need to change this if you are sending something
   // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'text/plain';
+  headers['Content-Type'] = 'application/json';
   console.log(headers);
   // .writeHead() writes to the request line and headers of the response,
   // which includes the status and all headers.
   response.writeHead(statusCode, headers);
+
+
+
+
+  //////////////////////////////////////////////////////////////
+//if request method/type(?) is GET 
+////if request URL equal to '/classes/messages' (or full URL? not sure)
+//////utilize built-in function writeHead for response accepting status code and header
+//////send the data to cliend using '.end' method for response
+////if not
+//////utilize built-in function writeHead for response accepting client Side Error and header
+//////Use built-in function write to let the user know about 404 - resource not found 
+//////send the data to cliend using '.end' method for response
+//else if request method/type(?) is POST 
+////
+
+
+
+//////////////////////////////////////////////////////////////////
+
+
+
 
   // Make sure to always call response.end() - Node may not send
   // anything back to the client until you do. The string you pass to
