@@ -1,61 +1,38 @@
-/*************************************************************
+var utils = require('./utils');
 
-You should implement your request handler function in this file.
+var objectId = 1;
+var messages = [
+  {
+    text: 'Do my bidding!',
+    username: 'Jono',
+    objectId: objectId
+  }
+];
 
-requestHandler is already getting passed to http.createServer()
-in basic-server.js, but it won't work as is.
-
-You'll have to figure out a way to export this function from
-this file and include it in basic-server.js so that it actually works.
-
-*Hint* Check out the node module documentation at http://nodejs.org/api/modules.html.
-
-**************************************************************/
+var actions = {
+  'GET': function(request, response) {
+    utils.sendResponse(response, {results: messages});  
+  },
+  'POST': function(request, response) {
+    utils.collectData(request, function(message) {
+      messages.push(message);
+      message.objectId = ++objectId;
+      utils.sendResponse(response, {objectId: 1}, 201);  
+    });
+  },
+  'OPTIONS': function(request, response) {
+    utils.sendResponse(response, null);  
+  }
+};
 
 var requestHandler = function(request, response) {
-  // Request and Response come from node's http module.
-  //
-  // They include information about both the incoming request, such as
-  // headers and URL, and about the outgoing response, such as its status
-  // and content.
-  //
-  // Documentation for both request and response can be found in the HTTP section at
-  // http://nodejs.org/documentation/api/
+ 
 
-  // Do some basic logging.
-  //
-  // Adding more logging to your server can be an easy way to get passive
-  // debugging help, but you should always be careful about leaving stray
-  // console.logs in your code.
-  console.log('Serving request type ' + request.method + ' for url ' + request.url);
-
-  // The outgoing status.
   var statusCode = 200;
-  var clientSideErr = 404;
+  var statusClientSideErr = 404;
+  var errorMsg = '<!doctype html><html><head><title>404</title></head><body>404: Resource Not Found</body></html>';
   var statusCodeOnPost = 201;
-
-  var defaultCorsHeaders = {
-    'access-control-allow-origin': '*',
-    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'access-control-allow-headers': 'content-type, accept',
-    'access-control-max-age': 10 // Seconds.
-  };
-
-  // See the note below about CORS headers.
-  var headers = defaultCorsHeaders;
-
-  // Tell the client we are sending them plain text.
-  //
-  // You will need to change this if you are sending something
-  // other than plain text, like JSON or HTML.
-  headers['Content-Type'] = 'application/json';
-  console.log(headers);
-  // .writeHead() writes to the request line and headers of the response,
-  // which includes the status and all headers.
-  response.writeHead(statusCode, headers);
-
-
-
+  var qs = require('querystring');
 
   //////////////////////////////////////////////////////////////
 //if request method/type(?) is GET 
@@ -69,32 +46,54 @@ var requestHandler = function(request, response) {
 //else if request method/type(?) is POST 
 //////utilize built-in function writeHead for response accepting statusCodeOnPost and header
 //////send the data to cliend using '.end' method for response
+//  var results = [];
+
+  var action = actions[request.method];
+
+  if (action) {
+    action(request, response);
+  } else {
+    utils.sendResponse(response, 'Not Found', 404);
+  }
 
 
+
+
+
+
+  // if (request.method === 'GET') {
+  //   if (request.url === '/classes/messages') {
+  //     sendResponse(response, messages);
+  //     // response.writeHead(statusCode, headers);
+  //     // response.end(JSON.stringify(results));
+  //   } else {
+  //     sendResponse(response, errorMsg, statusClientSideErr);
+  //     // response.writeHead(statusClientSideErr, headers);
+  //     // response.end(JSON.stringify(errorMsg));
+  //   }
+  // } else if (request.method === 'POST') {
+  //   var requestBody = '';
+  //   request.on('data', function(data) {
+  //     requestBody += JSON.parse(data);
+  //     if (requestBody.length > 1e7) {
+  //       sendResponse(response, errorMsg, 413);
+  //       // response.writeHead(413, 'Request Entity Too Large', headers);
+  //       // response.write(JSON.stringify(errorMsg));
+  //       // response.end('<!doctype html><html><head><title>413</title></head><body>413: Request Entity Too Large</body></html>');
+  //     }
+  //   });
+  //   request.on('end', function() {
+  //     var chatData = qs.parse(requestBody);
+  //     results.push(charData);
+  //     sendResponse(response, chatData, statusCodeOnPost);
+  //     response.writeHead(statusCodeOnPost, headers);
+  //     response.end(JSON.stringify(chatData));   
+  //   });
+  // }
 
 //////////////////////////////////////////////////////////////////
 
-
-
-
-  // Make sure to always call response.end() - Node may not send
-  // anything back to the client until you do. The string you pass to
-  // response.end() will be the body of the response - i.e. what shows
-  // up in the browser.
-  //
-  // Calling .end "flushes" the response's internal buffer, forcing
-  // node to actually send all the data over to the client.
-  response.end('Hello, World!');
 };
 
-// These headers will allow Cross-Origin Resource Sharing (CORS).
-// This code allows this server to talk to websites that
-// are on different domains, for instance, your chat client.
-//
-// Your chat client is running from a url like file://your/chat/client/index.html,
-// which is considered a different domain.
-//
-// Another way to get around this restriction is to serve you chat
-// client from this domain by setting up static file serving.
-
+//exports.sendResponse = sendResponse;
 exports.requestHandler = requestHandler;
